@@ -116,20 +116,24 @@ defmodule Prometheus.PlugPipelineInstrumenter do
       require Prometheus.Contrib.HTTP
 
       def setup() do
-        Counter.declare(
-          name: :http_requests_total,
-          help: "Total number of HTTP requests made.",
-          labels: unquote(nlabels),
-          registry: unquote(registry)
-        )
+        _ =
+          Counter.declare(
+            name: :http_requests_total,
+            help: "Total number of HTTP requests made.",
+            labels: unquote(nlabels),
+            registry: unquote(registry)
+          )
 
-        Histogram.declare(
-          name: unquote(:"http_request_duration_#{duration_unit}"),
-          help: "The HTTP request latencies in #{unquote(duration_unit)}.",
-          labels: unquote(nlabels),
-          buckets: unquote(request_duration_buckets),
-          registry: unquote(registry)
-        )
+        _ =
+          Histogram.declare(
+            name: unquote(:"http_request_duration_#{duration_unit}"),
+            help: "The HTTP request latencies in #{unquote(duration_unit)}.",
+            labels: unquote(nlabels),
+            buckets: unquote(request_duration_buckets),
+            registry: unquote(registry)
+          )
+
+        :ok
       end
 
       def init(_opts) do
@@ -141,23 +145,25 @@ defmodule Prometheus.PlugPipelineInstrumenter do
         Conn.register_before_send(conn, fn conn ->
           labels = unquote(construct_labels(labels))
 
-          Counter.inc(
-            registry: unquote(registry),
-            name: :http_requests_total,
-            labels: labels
-          )
+          _ =
+            Counter.inc(
+              registry: unquote(registry),
+              name: :http_requests_total,
+              labels: labels
+            )
 
           stop = :erlang.monotonic_time()
           diff = stop - start
 
-          Histogram.observe(
-            [
-              registry: unquote(registry),
-              name: unquote(:"http_request_duration_#{duration_unit}"),
-              labels: labels
-            ],
-            diff
-          )
+          _ =
+            Histogram.observe(
+              [
+                registry: unquote(registry),
+                name: unquote(:"http_request_duration_#{duration_unit}"),
+                labels: labels
+              ],
+              diff
+            )
 
           conn
         end)
