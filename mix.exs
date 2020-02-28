@@ -22,7 +22,9 @@ defmodule PrometheusPlugs.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :prometheus_ex, :accept]]
+    [
+      extra_applications: [:logger]
+    ]
   end
 
   defp description do
@@ -50,11 +52,12 @@ defmodule PrometheusPlugs.Mixfile do
   defp deps do
     [
       {:plug, "~> 1.0"},
+      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.11", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:prometheus_ex, "~> 1.1 or ~> 2.0 or ~> 3.0"},
+      {:prometheus_ex, "~> 3.0"},
       {:accept, "~> 0.1"},
-      {:prometheus_process_collector, "~> 1.1", optional: true}
+      {:prometheus_process_collector, "~> 1.4", optional: true}
     ]
   end
 end
